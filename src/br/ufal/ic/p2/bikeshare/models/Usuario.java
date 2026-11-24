@@ -18,6 +18,7 @@ public abstract class Usuario implements Serializable {
     private String metodoPagamento = "nenhum";
     private String aluguelAtivo = "nenhum";
     private double totalPendencias = 0.0;
+    private java.util.List<Penalidade> penalidades = new java.util.ArrayList<>();
 
     private double saldoPreCarregado = 0.0;
     private String numeroCartao = null;
@@ -55,7 +56,21 @@ public abstract class Usuario implements Serializable {
     public double getTotalPendencias() { return totalPendencias; }
     public void setTotalPendencias(double totalPendencias) { this.totalPendencias = totalPendencias; }
 
+    public java.util.List<Penalidade> getPenalidades() {
+        if (penalidades == null) {
+            penalidades = new java.util.ArrayList<>();
+        }
+        return java.util.Collections.unmodifiableList(penalidades);
+    }
 
+    public void adicionarPenalidade(Penalidade p) {
+        if (penalidades == null) {
+            penalidades = new java.util.ArrayList<>();
+        }
+        penalidades.add(p);
+        this.totalPendencias += p.getValor();
+        this.estado = "inadimplente";
+    }
 
     public double getSaldoPreCarregado() { return saldoPreCarregado; }
     public void setSaldoPreCarregado(double saldoPreCarregado) { this.saldoPreCarregado = saldoPreCarregado; }

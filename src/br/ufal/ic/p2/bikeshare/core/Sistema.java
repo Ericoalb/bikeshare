@@ -18,6 +18,7 @@ public class Sistema implements Serializable {
     private Map<String, Bicicleta> bicicletas = new LinkedHashMap<>();
     private Map<String, Aluguel> alugueis = new LinkedHashMap<>();
     private int proximoIdAluguel = 1;
+    private Map<String, Plano> planos = new LinkedHashMap<>();
 
     private transient ControleTransacional controleTransacional = new ControleTransacional();
 
@@ -41,7 +42,9 @@ public class Sistema implements Serializable {
         if (alugueis == null) {
             alugueis = new LinkedHashMap<>();
         }
-
+        if (planos == null) {
+            planos = new LinkedHashMap<>();
+        }
     }
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
@@ -59,14 +62,16 @@ public class Sistema implements Serializable {
         if (alugueis == null) {
             alugueis = new LinkedHashMap<>();
         }
-
+        if (planos == null) {
+            planos = new LinkedHashMap<>();
+        }
     }
 
     private byte[] clonarEstado() {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(new EstadoSistema(usuarios, proximoIdUsuario, estacoes, proximoIdEstacao, bicicletas, alugueis, proximoIdAluguel));
+            oos.writeObject(new EstadoSistema(usuarios, proximoIdUsuario, estacoes, proximoIdEstacao, bicicletas, alugueis, proximoIdAluguel, planos));
             oos.flush();
             return baos.toByteArray();
         } catch (Exception e) {
@@ -86,7 +91,7 @@ public class Sistema implements Serializable {
             this.bicicletas = new LinkedHashMap<>(estado.getBicicletas());
             this.alugueis = new LinkedHashMap<>(estado.getAlugueis());
             this.proximoIdAluguel = estado.getProximoIdAluguel();
-
+            this.planos = new LinkedHashMap<>(estado.getPlanos());
         } catch (Exception e) {
             throw new RuntimeException("Erro ao restaurar estado do sistema: " + e.getMessage(), e);
         }
@@ -128,7 +133,7 @@ public class Sistema implements Serializable {
             bicicletas.clear();
             alugueis.clear();
             proximoIdAluguel = 1;
-
+            planos.clear();
         });
     }
 
@@ -275,7 +280,10 @@ public class Sistema implements Serializable {
                             usuario.setPlano("assinante");
                             usuario.setMensalidade(30.0);
                         }
-
+                    } else if (planos.containsKey(p)) {
+                        Plano planoCustom = planos.get(p);
+                        usuario.setPlano(planoCustom.getNome());
+                        usuario.setMensalidade(planoCustom.getMensalidade());
                     } else {
                         throw new PlanoInvalidoException();
                     }
@@ -649,8 +657,7 @@ public class Sistema implements Serializable {
                 bike.setEstacaoId(estacaoDestino.getId());
                 estacaoDestino.adicionarBicicleta(bike.getId());
 
-                usuario.setEstado("inadimplente");
-                usuario.setTotalPendencias(usuario.getTotalPendencias() + 10.0);
+                usuario.adicionarPenalidade(new PenalidadeAtraso());
                 usuario.setAluguelAtivo("nenhum");
                 return;
             }
@@ -683,7 +690,11 @@ public class Sistema implements Serializable {
                 long franquia = 60;
                 long excedente = Math.max(0, minutos - franquia);
                 valorBase = excedente * 0.30;
-
+            } else if (planos.containsKey(usuario.getPlano())) {
+                Plano p = planos.get(usuario.getPlano());
+                long franquia = p.getFranquiaMinutos();
+                long excedente = Math.max(0, minutos - franquia);
+                valorBase = excedente * p.getValorMinutoExcedente();
             }
 
             double totalCobrado = valorBase + valorAdicionalEletrica;
@@ -763,6 +774,136 @@ public class Sistema implements Serializable {
             default:
                 throw new AtributoNaoExisteException();
         }
+    }
+
+    // =========================================================================
+    // US12 - Criar Plano
+    // =========================================================================
+
+    public synchronized String criarPlano(String nome, String franquiaMinutos, String valorMinutoExcedente, String mensalidade) throws Exception {
+        return executarComandoModificador(() -> {
+            Plano plano = ValidadorPlano.validarECriarPlano(nome, franquiaMinutos, valorMinutoExcedente, mensalidade, planos);
+            planos.put(plano.getNome(), plano);
+            return plano.getNome();
+        });
+    }
+
+    // =========================================================================
+    // US13 - Lançamento de Penalidade
+    // =========================================================================
+
+    public synchronized void lancaPenalidade(String usuarioId, String tipo, String valorStr, String motivo) throws Exception {
+        executarComandoModificador(() -> {
+            if (usuarioId == null || usuarioId.trim().isEmpty()) {
+                throw new IdentificacaoUsuarioNaoPodeSerNulaException();
+            }
+            Usuario usuario = usuarios.get(usuarioId.trim());
+            if (usuario == null) {
+                throw new UsuarioNaoExisteException();
+            }
+
+            if (tipo == null || (!"dano".equals(tipo.trim()) && !"usoIndevido".equals(tipo.trim()))) {
+                throw new TipoDePenalidadeInvalidoException();
+            }
+
+            if (valorStr == null || valorStr.trim().isEmpty()) {
+                throw new ValorNaoPodeSerNuloException();
+            }
+            double valor;
+            try {
+                valor = Double.parseDouble(valorStr.trim().replace(',', '.'));
+            } catch (NumberFormatException e) {
+                throw new ValorDeveSerNumericoException();
+            }
+            if (valor <= 0) {
+                throw new ValorDeveSerPositivoException();
+            }
+
+            if (motivo == null || motivo.trim().isEmpty()) {
+                throw new MotivoNaoPodeSerNuloException();
+            }
+
+            Penalidade penalidade;
+            if ("dano".equals(tipo.trim())) {
+                penalidade = new PenalidadeDano(valor, motivo.trim());
+            } else {
+                penalidade = new PenalidadeUsoIndevido(valor, motivo.trim());
+            }
+
+            usuario.adicionarPenalidade(penalidade);
+        });
+    }
+
+    // =========================================================================
+    // US14 - Manutenção de Bicicletas
+    // =========================================================================
+
+    public synchronized void lancaDefeito(String bicicletaId, String descricao) throws Exception {
+        executarComandoModificador(() -> {
+            if (bicicletaId == null || bicicletaId.trim().isEmpty()) {
+                throw new IdentificacaoBicicletaNaoPodeSerNulaException();
+            }
+            Bicicleta bike = bicicletas.get(bicicletaId.trim());
+            if (bike == null) {
+                throw new BicicletaNaoExisteException();
+            }
+
+            if (descricao == null || descricao.trim().isEmpty()) {
+                throw new DescricaoNaoPodeSerNulaException();
+            }
+
+            if ("emUso".equals(bike.getEstado())) {
+                throw new NaoEPossivelLancarDefeitoEmBicicletaEmUsoException();
+            }
+
+            if ("emManutencao".equals(bike.getEstado())) {
+                throw new BicicletaJaEstaEmManutencaoException();
+            }
+
+            bike.setEstado("emManutencao");
+        });
+    }
+
+    public synchronized void concluiManutencao(String bicicletaId) throws Exception {
+        executarComandoModificador(() -> {
+            if (bicicletaId == null || bicicletaId.trim().isEmpty()) {
+                throw new IdentificacaoBicicletaNaoPodeSerNulaException();
+            }
+            Bicicleta bike = bicicletas.get(bicicletaId.trim());
+            if (bike == null) {
+                throw new BicicletaNaoExisteException();
+            }
+
+            if (!"emManutencao".equals(bike.getEstado())) {
+                throw new BicicletaNaoEstaEmManutencaoException();
+            }
+
+            bike.setEstado("disponivel");
+        });
+    }
+
+    // =========================================================================
+    // US15 - Relatórios
+    // =========================================================================
+
+    public synchronized String getTotalFaturado(String dataInicial, String dataFinal) throws Exception {
+        java.time.LocalDate dtIni = ValidadorData.validarEConverterDataApenas(dataInicial);
+        java.time.LocalDate dtFim = ValidadorData.validarEConverterDataApenas(dataFinal);
+
+        if (dtFim.isBefore(dtIni)) {
+            throw new DataFinalAnteriorADataInicialException();
+        }
+
+        double total = 0.0;
+        for (Aluguel aluguel : alugueis.values()) {
+            if (aluguel.getDataFim() != null && aluguel.getValorCobrado() != null) {
+                java.time.LocalDate dataDevolucao = aluguel.getDataFim().toLocalDate();
+                if (!dataDevolucao.isBefore(dtIni) && !dataDevolucao.isAfter(dtFim)) {
+                    total += aluguel.getValorCobrado();
+                }
+            }
+        }
+        return String.format(Locale.GERMAN, "%.2f", total);
     }
 
     private static final String ARQUIVO_DADOS = "bikeshare_data.ser";
