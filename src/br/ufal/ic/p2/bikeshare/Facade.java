@@ -1,151 +1,154 @@
 package br.ufal.ic.p2.bikeshare;
 
+import br.ufal.ic.p2.bikeshare.core.Sistema;
+
 /**
  Facade
  */
 public class Facade {
 
     private static final String AINDA_NAO_IMPLEMENTADO = "Ainda não implementado.";
+    private Sistema sistema = Sistema.carregar();
 
     // =====================================================================
     // US1 - Cadastro de usuario
     // =====================================================================
 
-    public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) throws Exception {
+        return sistema.criarUsuario(nome, email, senha, tipo, cpfOuCnpj);
     }
 
-    public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) throws Exception {
+        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial);
     }
 
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpf,
-                                String plano, String mensalidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+                                String plano, String mensalidade) throws Exception {
+        return sistema.criarUsuario(nome, email, senha, tipo, cpf, plano, mensalidade);
     }
 
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj,
-                                String razaoSocial, String plano, String mensalidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+                                String razaoSocial, String plano, String mensalidade) throws Exception {
+        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial, plano, mensalidade);
     }
 
     // =====================================================================
     // US2 - Consulta de usuario
     // =====================================================================
 
-    public String getAtributoUsuario(String usuario, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getAtributoUsuario(String usuario, String atributo) throws Exception {
+        return sistema.getAtributoUsuario(usuario, atributo);
     }
 
-    public String getUsuarioPorEmail(String email) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getUsuarioPorEmail(String email) throws Exception {
+        return sistema.getUsuarioPorEmail(email);
     }
 
     // =====================================================================
     // US3 - Alteracao de usuario (inclui metodo de pagamento)
     // =====================================================================
 
-    public void alterarUsuario(String usuario, String atributo, String valor) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void alterarUsuario(String usuario, String atributo, String valor) throws Exception {
+        sistema.alterarUsuario(usuario, atributo, valor);
     }
 
-    public void alterarUsuario(String usuario, String atributo, String valor1, String chave) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void alterarUsuario(String usuario, String atributo, String valor1, String chave) throws Exception {
+        sistema.alterarUsuario(usuario, atributo, valor1, chave);
     }
 
-    public void alterarUsuario(String usuario, String atributo, String valor1, String numero, String validade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void alterarUsuario(String usuario, String atributo, String valor1, String numero, String validade) throws Exception {
+        sistema.alterarUsuario(usuario, atributo, valor1, numero, validade);
     }
 
     // =====================================================================
     // US4 - Remocao de usuario
     // =====================================================================
 
-    public void removerUsuario(String usuario) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void removerUsuario(String usuario) throws Exception {
+        sistema.removerUsuario(usuario);
     }
 
     // =====================================================================
     // US5 - Cadastro de estacao
     // =====================================================================
 
-    public String criarEstacao(String nome, String endereco, String capacidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String criarEstacao(String nome, String endereco, String capacidade) throws Exception {
+        return sistema.criarEstacao(nome, endereco, capacidade);
     }
 
     // =====================================================================
     // US6 - Gestao de bicicletas na estacao
     // =====================================================================
 
-    public void adicionarBicicleta(String estacao, String bicicleta, String tipo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void adicionarBicicleta(String estacao, String bicicleta, String tipo) throws Exception {
+        sistema.adicionarBicicleta(estacao, bicicleta, tipo);
     }
 
-    public void adicionarBicicleta(String estacao, String bicicleta, String tipo, String nivelBateria) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void adicionarBicicleta(String estacao, String bicicleta, String tipo, String nivelBateria) throws Exception {
+        sistema.adicionarBicicleta(estacao, bicicleta, tipo, nivelBateria);
     }
 
-    public void removerBicicleta(String estacao, String bicicleta) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void removerBicicleta(String estacao, String bicicleta) throws Exception {
+        sistema.removerBicicleta(estacao, bicicleta);
     }
 
-    public String getAtributoBicicleta(String bicicleta, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getAtributoBicicleta(String bicicleta, String atributo) throws Exception {
+        return sistema.getAtributoBicicleta(bicicleta, atributo);
     }
 
     // =====================================================================
     // US7 - Consulta de disponibilidade
     // =====================================================================
 
-    public String getBicicletasDisponiveis(String estacao) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getBicicletasDisponiveis(String estacao) throws Exception {
+        return sistema.getBicicletasDisponiveis(estacao);
     }
 
-    public String getVagasDisponiveis(String estacao) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getVagasDisponiveis(String estacao) throws Exception {
+        return sistema.getVagasDisponiveis(estacao);
     }
 
-    public String getEstadoBicicleta(String bicicleta) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getEstadoBicicleta(String bicicleta) throws Exception {
+        return sistema.getEstadoBicicleta(bicicleta);
     }
 
     // =====================================================================
     // US8 - Retirada de bicicleta
     // =====================================================================
 
-    public String retirarBicicleta(String usuario, String estacao, String bicicleta, String data) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String retirarBicicleta(String usuario, String estacao, String bicicleta, String data) throws Exception {
+        return sistema.retirarBicicleta(usuario, estacao, bicicleta, data);
     }
 
     // =====================================================================
     // US9 - Devolucao de bicicleta
     // =====================================================================
 
-    public void devolverBicicleta(String aluguel, String estacao, String data) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void devolverBicicleta(String aluguel, String estacao, String data) throws Exception {
+        sistema.devolverBicicleta(aluguel, estacao, data);
     }
 
     // =====================================================================
     // US10 - Consulta de historico de alugueis
     // =====================================================================
 
-    public String getHistoricoAlugueis(String usuario) {
+    public String getHistoricoAlugueis(String usuario) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
-    public String getHistoricoAlugueis(String usuario, String atributo) {
+    public String getHistoricoAlugueis(String usuario, String atributo) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
-    public String getAtributoAluguel(String aluguel, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getAtributoAluguel(String aluguel, String atributo) throws Exception {
+        return sistema.getAtributoAluguel(aluguel, atributo);
     }
 
     // =====================================================================
     // US11/US12 - Planos e tarifacao / criacao de novos planos
     // =====================================================================
 
-    public String criarPlano(String nome, String franquiaMinutos, String valorMinutoExcedente, String mensalidade) {
+    public String criarPlano(String nome, String franquiaMinutos, String valorMinutoExcedente, String mensalidade) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
@@ -153,7 +156,7 @@ public class Facade {
     // US13 - Regras de bloqueio / lancamento manual de penalidade
     // =====================================================================
 
-    public void lancaPenalidade(String usuario, String tipo, String valor, String motivo) {
+    public void lancaPenalidade(String usuario, String tipo, String valor, String motivo) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
@@ -161,11 +164,11 @@ public class Facade {
     // US14 - Lancamento e conclusao de manutencao
     // =====================================================================
 
-    public void lancaDefeito(String bicicleta, String descricao) {
+    public void lancaDefeito(String bicicleta, String descricao) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
-    public void concluiManutencao(String bicicleta) {
+    public void concluiManutencao(String bicicleta) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
@@ -173,7 +176,7 @@ public class Facade {
     // US15 - Relatorios
     // =====================================================================
 
-    public String getTotalFaturado(String dataInicial, String dataFinal) {
+    public String getTotalFaturado(String dataInicial, String dataFinal) throws Exception {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
@@ -181,23 +184,23 @@ public class Facade {
     // US16 - Undo/redo
     // =====================================================================
 
-    public void undo() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void undo() throws Exception {
+        sistema.undo();
     }
 
-    public void redo() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void redo() throws Exception {
+        sistema.redo();
     }
 
     // =====================================================================
     // Ciclo de vida do sistema
     // =====================================================================
 
-    public void zerarSistema() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void zerarSistema() throws Exception {
+        sistema.zerarSistema();
     }
 
-    public void encerrarSistema() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public void encerrarSistema() throws Exception {
+        sistema.encerrarSistema();
     }
 }
